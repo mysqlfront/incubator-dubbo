@@ -31,6 +31,8 @@ import java.io.OutputStream;
  * <pre>
  *     e.g. &lt;dubbo:protocol serialization="xxx" /&gt;
  * </pre>
+ * 指定序列化策略的接口
+ * dubbo 序列化的默认实现是 hessian2
  */
 @SPI("hessian2")
 public interface Serialization {

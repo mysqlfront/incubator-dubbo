@@ -48,6 +48,7 @@ public class CompatibleTypeUtils {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Object compatibleTypeConvert(Object value, Class<?> type) {
+        // 如果是null, 或者两个是父子类或者同一个接口
         if (value == null || type == null || type.isAssignableFrom(value.getClass())) {
             return value;
         }

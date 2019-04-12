@@ -91,7 +91,7 @@ public class ClassHelper {
      * @param clazz
      * @return class loader
      */
-    public static ClassLoader getClassLoader(Class<?> clazz) {
+    public static ClassLoader getClassLoader(Class<?> clazz) { // todo 使用场景
         ClassLoader cl = null;
         try {
             cl = Thread.currentThread().getContextClassLoader();
@@ -237,7 +237,7 @@ public class ClassHelper {
                 && !"set".equals(method.getName())
                 && Modifier.isPublic(method.getModifiers())
                 && method.getParameterCount() == 1
-                && isPrimitive(method.getParameterTypes()[0]);
+                && isPrimitive(method.getParameterTypes()[0]);// 必须是 Primitive 类型？
     }
 
     public static boolean isGetter(Method method) {

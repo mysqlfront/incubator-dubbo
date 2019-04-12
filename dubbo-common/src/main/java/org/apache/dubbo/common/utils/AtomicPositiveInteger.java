@@ -18,6 +18,7 @@ package org.apache.dubbo.common.utils;
 
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
+// 原子正数
 public class AtomicPositiveInteger extends Number {
 
     private static final long serialVersionUID = -3038533876489105940L;
@@ -36,7 +37,7 @@ public class AtomicPositiveInteger extends Number {
     }
 
     public final int getAndIncrement() {
-        return indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
+        return indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;// & 防止溢出变成负数
     }
 
     public final int getAndDecrement() {

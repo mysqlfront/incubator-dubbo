@@ -68,6 +68,7 @@ public class CollectionUtils {
         return list;
     }
 
+    // 没有人使用
     public static Map<String, Map<String, String>> splitAll(Map<String, List<String>> list, String separator) {
         if (list == null) {
             return null;
@@ -184,6 +185,7 @@ public class CollectionUtils {
         return parameters;
     }
 
+    // 没有人使用
     @SuppressWarnings("unchecked")
     public static <K, V> Map<K, V> toMap(Object... pairs) {
         Map<K, V> ret = new HashMap<>();
