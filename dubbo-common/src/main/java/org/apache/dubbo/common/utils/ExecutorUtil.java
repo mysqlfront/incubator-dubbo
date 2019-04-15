@@ -45,6 +45,7 @@ public class ExecutorUtil {
     }
 
     /**
+     * 优雅关闭线程池
      * Use the shutdown pattern from:
      * https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ExecutorService.html
      *
@@ -58,7 +59,7 @@ public class ExecutorUtil {
         final ExecutorService es = (ExecutorService) executor;
         try {
             // Disable new tasks from being submitted
-            es.shutdown();
+            es.shutdown();// 停止接收新的task
         } catch (SecurityException ex2) {
             return;
         } catch (NullPointerException ex2) {
@@ -66,14 +67,14 @@ public class ExecutorUtil {
         }
         try {
             // Wait a while for existing tasks to terminate
-            if (!es.awaitTermination(timeout, TimeUnit.MILLISECONDS)) {
+            if (!es.awaitTermination(timeout, TimeUnit.MILLISECONDS)) {// 等待在执行的任务执行完
                 es.shutdownNow();
             }
         } catch (InterruptedException ex) {
             es.shutdownNow();
             Thread.currentThread().interrupt();
         }
-        if (!isTerminated(es)) {
+        if (!isTerminated(es)) { // 如果没有关闭，创建线程来关闭这个es
             newThreadToCloseExecutor(es);
         }
     }
@@ -105,7 +106,7 @@ public class ExecutorUtil {
             shutdownExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    try {
+                    try {// 10秒内循环1000次关闭
                         for (int i = 0; i < 1000; i++) {
                             es.shutdownNow();
                             if (es.awaitTermination(10, TimeUnit.MILLISECONDS)) {

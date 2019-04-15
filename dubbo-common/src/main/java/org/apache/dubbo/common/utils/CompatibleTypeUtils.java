@@ -36,6 +36,7 @@ public class CompatibleTypeUtils {
     }
 
     /**
+     * 尝试类型转换,兼容型的<p>
      * Compatible type convert. Null value is allowed to pass in. If no conversion is needed, then the original value
      * will be returned.
      * <p>
@@ -47,7 +48,7 @@ public class CompatibleTypeUtils {
      * </ul>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static Object compatibleTypeConvert(Object value, Class<?> type) {
+    public static Object compatibleTypeConvert(Object value, Class<?> type) {//
         // 如果是null, 或者两个是父子类或者同一个接口
         if (value == null || type == null || type.isAssignableFrom(value.getClass())) {
             return value;

@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class NamedThreadFactory implements ThreadFactory {
 
+    // 第几个线程池
     protected static final AtomicInteger POOL_SEQ = new AtomicInteger(1);
 
     protected final AtomicInteger mThreadNum = new AtomicInteger(1);

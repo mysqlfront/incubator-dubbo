@@ -63,6 +63,7 @@ public class ConfigUtils {
     }
 
     /**
+     * 没有人使用<P>
      * Insert default extension into extension list.
      * <p>
      * Extension list support<ul>
@@ -140,6 +141,7 @@ public class ConfigUtils {
         return sb.toString();
     }
 
+    // 获取 dubbo.properties
     public static Properties getProperties() {
         if (PROPERTIES == null) {
             synchronized (ConfigUtils.class) {
@@ -157,11 +159,11 @@ public class ConfigUtils {
         }
         return PROPERTIES;
     }
-
+    // un used
     public static void setProperties(Properties properties) {
         PROPERTIES = properties;
     }
-
+    // un used
     public static void addProperties(Properties properties) {
         if (properties != null) {
             getProperties().putAll(properties);
