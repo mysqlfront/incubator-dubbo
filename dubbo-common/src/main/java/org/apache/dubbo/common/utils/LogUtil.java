@@ -24,7 +24,7 @@ import org.apache.log4j.Level;
 import java.util.Iterator;
 import java.util.List;
 
-public class LogUtil {
+public class LogUtil { // ? un used
 
     private static Logger Log = LoggerFactory.getLogger(LogUtil.class);
 
