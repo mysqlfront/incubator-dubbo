@@ -167,7 +167,8 @@ public final class ReflectUtils {
      */
     public static boolean isCompatible(Class<?> c, Object o) {
         boolean pt = c.isPrimitive();
-        if (o == null) {
+
+        if (o == null) { // 如果o ==null,兼容所有的非原生类型
             return !pt;
         }
 

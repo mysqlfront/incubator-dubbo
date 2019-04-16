@@ -47,6 +47,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
+ * 深度遍历对象，并且将复杂类型转为简单类型
+ * ？？ 使用场景
  * PojoUtils. Travel object deeply, and convert complex type to simple type.
  * <p/>
  * Simple type below will be remained:
@@ -101,7 +103,7 @@ public class PojoUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static Object generalize(Object pojo, Map<Object, Object> history) {
+    private static Object generalize(Object pojo, Map<Object, Object> history) {//获取某个pojo 的概况，归纳信息
         if (pojo == null) {
             return null;
         }
@@ -531,6 +533,7 @@ public class PojoUtils {
                     throw new RuntimeException("Illegal constructor: " + cls.getName());
                 }
                 Constructor<?> constructor = constructors[0];
+                // 尝试获取无参构造器
                 if (constructor.getParameterTypes().length > 0) {
                     for (Constructor<?> c : constructors) {
                         if (c.getParameterTypes().length < constructor.getParameterTypes().length) {
@@ -553,6 +556,15 @@ public class PojoUtils {
         }
     }
 
+    /**
+     * 获取属性的set方法 有cache,
+     * 没有获取到返回null
+     *
+     * @param cls
+     * @param property
+     * @param valueCls
+     * @return
+     */
     private static Method getSetterMethod(Class<?> cls, String property, Class<?> valueCls) {
         String name = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
         Method method = NAME_METHODS_CACHE.get(cls.getName() + "." + name + "(" + valueCls.getName() + ")");
@@ -573,6 +585,12 @@ public class PojoUtils {
         return method;
     }
 
+    /**
+     * 获取某个属性 有cache
+     * @param cls
+     * @param fieldName
+     * @return
+     */
     private static Field getField(Class<?> cls, String fieldName) {
         Field result = null;
         if (CLASS_FIELD_CACHE.containsKey(cls) && CLASS_FIELD_CACHE.get(cls).containsKey(fieldName)) {
@@ -601,6 +619,12 @@ public class PojoUtils {
         return result;
     }
 
+    /**
+     * 判断是不是pojo
+     * 排除掉基本类型（dubbo 认为的），map，collection
+     * @param cls
+     * @return
+     */
     public static boolean isPojo(Class<?> cls) {
         return !ReflectUtils.isPrimitives(cls)
                 && !Collection.class.isAssignableFrom(cls)

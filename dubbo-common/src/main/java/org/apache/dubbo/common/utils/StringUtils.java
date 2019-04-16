@@ -720,7 +720,7 @@ public final class StringUtils {
         }
         buf.append(ps.get(Constants.INTERFACE_KEY));
         String version = ps.get(Constants.VERSION_KEY);
-        if (isNotEmpty(group)) {
+        if (isNotEmpty(group)) { // todo bug? 判断version？
             buf.append(":").append(version);
         }
         return buf.toString();
