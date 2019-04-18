@@ -49,6 +49,7 @@ public final class Version {
      * For protocol compatibility purpose.
      * Because {@link #isSupportResponseAttachment} is checked for every call, int compare expect to has higher
      * performance than string.
+     * 20 20 200
      */
     private static final int LOWEST_VERSION_FOR_RESPONSE_ATTACHMENT = 2000200; // 2.0.2
     private static final Map<String, Integer> VERSION2INT = new HashMap<String, Integer>();
@@ -119,7 +120,7 @@ public final class Version {
         }
         return v;
     }
-
+    // 20000 + 600 + 3
     private static int parseInt(String version) {
         int v = 0;
         String[] vArr = version.split("\\.");
