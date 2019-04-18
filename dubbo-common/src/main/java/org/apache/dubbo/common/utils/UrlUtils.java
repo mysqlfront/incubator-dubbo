@@ -154,6 +154,7 @@ public class UrlUtils {
         return registries;
     }
 
+    // un used
     public static Map<String, Map<String, String>> convertRegister(Map<String, Map<String, String>> register) {
         Map<String, Map<String, String>> newRegister = new HashMap<String, Map<String, String>>();
         for (Map.Entry<String, Map<String, String>> entry : register.entrySet()) {
@@ -188,7 +189,7 @@ public class UrlUtils {
         }
         return newRegister;
     }
-
+    // un used
     public static Map<String, String> convertSubscribe(Map<String, String> subscribe) {
         Map<String, String> newSubscribe = new HashMap<String, String>();
         for (Map.Entry<String, String> entry : subscribe.entrySet()) {
@@ -214,7 +215,7 @@ public class UrlUtils {
         }
         return newSubscribe;
     }
-
+    // un used
     public static Map<String, Map<String, String>> revertRegister(Map<String, Map<String, String>> register) {
         Map<String, Map<String, String>> newRegister = new HashMap<String, Map<String, String>>();
         for (Map.Entry<String, Map<String, String>> entry : register.entrySet()) {
@@ -368,6 +369,12 @@ public class UrlUtils {
         }
     }
 
+    /**
+     * 两个url 是否匹配
+     * @param consumerUrl
+     * @param providerUrl
+     * @return
+     */
     public static boolean isMatch(URL consumerUrl, URL providerUrl) {
         String consumerInterface = consumerUrl.getServiceInterface();
         String providerInterface = providerUrl.getServiceInterface();
@@ -377,7 +384,7 @@ public class UrlUtils {
                 || StringUtils.isEquals(consumerInterface, providerInterface))) {
             return false;
         }
-
+        // 类别
         if (!isMatchCategory(providerUrl.getParameter(CATEGORY_KEY, DEFAULT_CATEGORY),
                 consumerUrl.getParameter(CATEGORY_KEY, DEFAULT_CATEGORY))) {
             return false;
