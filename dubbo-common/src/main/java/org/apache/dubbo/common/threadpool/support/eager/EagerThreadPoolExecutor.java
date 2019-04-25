@@ -44,6 +44,7 @@ public class EagerThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     /**
+     * 当前正在处理的任务数量
      * @return current tasks which are executed
      */
     public int getSubmittedTaskCount() {
