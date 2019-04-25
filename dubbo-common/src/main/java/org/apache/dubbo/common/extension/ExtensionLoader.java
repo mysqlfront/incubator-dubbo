@@ -82,20 +82,32 @@ public class ExtensionLoader<T> {
 
     private final ExtensionFactory objectFactory;
 
+    // exctension.class -> name 缓存
     private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<>();
 
+    // 配置缓存  name->class
     private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<>();
 
-    private final Map<String, Object> cachedActivates = new ConcurrentHashMap<>();
+    // name -> 实例
     private final ConcurrentMap<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<>();
+
+    // ============
+    // name-> @Activate
+    private final Map<String, Object> cachedActivates = new ConcurrentHashMap<>();
+    // ============ @Adaptive
     private final Holder<Object> cachedAdaptiveInstance = new Holder<>();
+
     private volatile Class<?> cachedAdaptiveClass = null;
-    private String cachedDefaultName;
+
     private volatile Throwable createAdaptiveInstanceError;
+
+
+    private String cachedDefaultName;
 
     private Set<Class<?>> cachedWrapperClasses;
 
     private Map<String, IllegalStateException> exceptions = new ConcurrentHashMap<>();
+    // ===============
 
     private ExtensionLoader(Class<?> type) {
         this.type = type;
@@ -154,6 +166,7 @@ public class ExtensionLoader<T> {
         return cachedNames.get(extensionClass);
     }
 
+    // ================ getActivateExtension ========================
     /**
      * This is equivalent to {@code getActivateExtension(url, key, null)}
      *
@@ -284,6 +297,8 @@ public class ExtensionLoader<T> {
         }
         return false;
     }
+
+    // ================ getActivateExtension ========================
 
     /**
      * Get extension's instance. Return <code>null</code> if extension is not found or is not initialized. Pls. note
@@ -466,6 +481,11 @@ public class ExtensionLoader<T> {
         }
     }
 
+    /**
+     * 获取 adaptive extension
+     *
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public T getAdaptiveExtension() {
         Object instance = cachedAdaptiveInstance.get();
@@ -516,6 +536,11 @@ public class ExtensionLoader<T> {
         return new IllegalStateException(buf.toString());
     }
 
+    /**
+     * 实例化extension
+     * @param name
+     * @return
+     */
     @SuppressWarnings("unchecked")
     private T createExtension(String name) {
         Class<?> clazz = getExtensionClasses().get(name);
@@ -542,6 +567,14 @@ public class ExtensionLoader<T> {
         }
     }
 
+    // setter 方法注入需要的属性
+
+    /**
+     * 注入依赖的 extension
+     *
+     * @param instance
+     * @return
+     */
     private T injectExtension(T instance) {
         try {
             if (objectFactory != null) {
@@ -561,6 +594,7 @@ public class ExtensionLoader<T> {
                             String property = getSetterProperty(method);
                             Object object = objectFactory.getExtension(pt, property);
                             if (object != null) {
+                                // set object into instance
                                 method.invoke(instance, object);
                             }
                         } catch (Exception e) {
@@ -610,6 +644,11 @@ public class ExtensionLoader<T> {
         return getExtensionClasses().get(name);
     }
 
+    /**
+     * 获取本扩展点的配置
+     * 会触发加载
+     * @return
+     */
     private Map<String, Class<?>> getExtensionClasses() {
         Map<String, Class<?>> classes = cachedClasses.get();
         if (classes == null) {
@@ -625,6 +664,15 @@ public class ExtensionLoader<T> {
     }
 
     // synchronized in getExtensionClasses
+
+    /**
+     * 从文件中中获取扩展点配置
+     * META-INF/dubbo/internal/
+     * META-INF/dubbo/
+     * META-INF/services/
+     *
+     * @return
+     */
     private Map<String, Class<?>> loadExtensionClasses() {
         cacheDefaultExtensionName();
 
@@ -640,6 +688,7 @@ public class ExtensionLoader<T> {
 
     /**
      * extract and cache default extension name if exists
+     * spi指定的默认值
      */
     private void cacheDefaultExtensionName() {
         final SPI defaultAnnotation = type.getAnnotation(SPI.class);
@@ -721,10 +770,10 @@ public class ExtensionLoader<T> {
                     + clazz.getName() + " is not subtype of interface.");
         }
         if (clazz.isAnnotationPresent(Adaptive.class)) {
-            cacheAdaptiveClass(clazz);
+            cacheAdaptiveClass(clazz); // 缓存   Adaptive
         } else if (isWrapperClass(clazz)) {
-            cacheWrapperClass(clazz);
-        } else {
+            cacheWrapperClass(clazz); // 缓存 wrapper class
+        } else { // 缓存默认cachedNames ，缓存 Activate ，加载所有配置的实现类
             clazz.getConstructor();
             if (StringUtils.isEmpty(name)) {
                 name = findAnnotationName(clazz);
@@ -733,12 +782,12 @@ public class ExtensionLoader<T> {
                 }
             }
 
-            String[] names = NAME_SEPARATOR.split(name);
+            String[] names = NAME_SEPARATOR.split(name);// 逗号隔开别名
             if (ArrayUtils.isNotEmpty(names)) {
-                cacheActivateClass(clazz, names[0]);
+                cacheActivateClass(clazz, names[0]);// 如果没有 activate 就不缓存
                 for (String n : names) {
                     cacheName(clazz, n);
-                    saveInExtensionClass(extensionClasses, clazz, name);
+                    saveInExtensionClass(extensionClasses, clazz, name);// 同名不同class跑出异常
                 }
             }
         }
@@ -846,12 +895,18 @@ public class ExtensionLoader<T> {
 
     private Class<?> getAdaptiveExtensionClass() {
         getExtensionClasses();
-        if (cachedAdaptiveClass != null) {
+        if (cachedAdaptiveClass != null) { // 如果加载过程中，某个类有注解 Adaptive
             return cachedAdaptiveClass;
         }
         return cachedAdaptiveClass = createAdaptiveExtensionClass();
     }
 
+    /**
+     * 生成源代码，编译，
+     * 自适应的类
+     *
+     * @return
+     */
     private Class<?> createAdaptiveExtensionClass() {
         String code = new AdaptiveClassCodeGenerator(type, cachedDefaultName).generate();
         ClassLoader classLoader = findClassLoader();
