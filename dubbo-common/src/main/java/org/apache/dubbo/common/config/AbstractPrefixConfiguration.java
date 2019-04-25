@@ -22,7 +22,9 @@ import org.apache.dubbo.common.utils.StringUtils;
  * This is an abstraction specially customized for the sequence Dubbo retrieves properties.
  */
 public abstract class AbstractPrefixConfiguration implements Configuration {
+
     protected String id;
+
     protected String prefix;
 
     public AbstractPrefixConfiguration(String prefix, String id) {
@@ -35,6 +37,15 @@ public abstract class AbstractPrefixConfiguration implements Configuration {
         this.id = id;
     }
 
+    /**
+     * prefix + id +.+key <p/>
+     * prefix+key<p/>
+     * key<p/>
+     *
+     * @param key          property to retrieve
+     * @param defaultValue default value
+     * @return
+     */
     @Override
     public Object getProperty(String key, Object defaultValue) {
         Object value = null;
