@@ -24,7 +24,8 @@ public interface ExtensionFactory {
 
     /**
      * Get extension.
-     *
+     *  等于 ExtensionLoader.getExtensionLoader(type).getAdaptiveExtension();
+     *  等于 spring : content.getbean(name);
      * @param type object type.
      * @param name object name.
      * @return object instance.

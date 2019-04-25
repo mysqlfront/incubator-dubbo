@@ -745,6 +745,12 @@ public final class StringUtils {
         return buf.toString();
     }
 
+    /**
+     * abCdEf . --> ab.cd.ef
+     * @param camelName
+     * @param split
+     * @return
+     */
     public static String camelToSplitName(String camelName, String split) {
         if (isEmpty(camelName)) {
             return camelName;
