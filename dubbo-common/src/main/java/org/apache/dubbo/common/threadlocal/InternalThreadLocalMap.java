@@ -77,7 +77,7 @@ public final class InternalThreadLocalMap {
     }
 
     private InternalThreadLocalMap() {
-        indexedVariables = newIndexedVariableTable();
+        indexedVariables = newIndexedVariableTable();// 一个32长度的数组
     }
 
     public Object indexedVariable(int index) {
@@ -86,6 +86,8 @@ public final class InternalThreadLocalMap {
     }
 
     /**
+     *
+     * 只有当 index位置是第一次赋值时，返回true
      * @return {@code true} if and only if a new thread-local variable has been created
      */
     public boolean setIndexedVariable(int index, Object value) {
@@ -95,7 +97,7 @@ public final class InternalThreadLocalMap {
             lookup[index] = value;
             return oldValue == UNSET;
         } else {
-            expandIndexedVariableTableAndSet(index, value);
+            expandIndexedVariableTableAndSet(index, value);// 扩容
             return true;
         }
     }
@@ -130,6 +132,11 @@ public final class InternalThreadLocalMap {
         return array;
     }
 
+    /**
+     * 本数据结构
+     * @param thread
+     * @return
+     */
     private static InternalThreadLocalMap fastGet(InternalThread thread) {
         InternalThreadLocalMap threadLocalMap = thread.threadLocalMap();
         if (threadLocalMap == null) {
@@ -138,6 +145,10 @@ public final class InternalThreadLocalMap {
         return threadLocalMap;
     }
 
+    /**
+     * 原生 的 threadlocal
+     * @return
+     */
     private static InternalThreadLocalMap slowGet() {
         ThreadLocal<InternalThreadLocalMap> slowThreadLocalMap = InternalThreadLocalMap.slowThreadLocalMap;
         InternalThreadLocalMap ret = slowThreadLocalMap.get();
@@ -148,16 +159,18 @@ public final class InternalThreadLocalMap {
         return ret;
     }
 
+    // 扩容
     private void expandIndexedVariableTableAndSet(int index, Object value) {
         Object[] oldArray = indexedVariables;
         final int oldCapacity = oldArray.length;
+        // 散列， |运算基本能让每一位全是1
         int newCapacity = index;
         newCapacity |= newCapacity >>> 1;
         newCapacity |= newCapacity >>> 2;
         newCapacity |= newCapacity >>> 4;
         newCapacity |= newCapacity >>> 8;
         newCapacity |= newCapacity >>> 16;
-        newCapacity++;
+        newCapacity++;// 2的幂次方
 
         Object[] newArray = Arrays.copyOf(oldArray, newCapacity);
         Arrays.fill(newArray, oldCapacity, newArray.length, UNSET);
