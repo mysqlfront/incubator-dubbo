@@ -552,7 +552,7 @@ public class ExtensionLoader<T> {
             if (instance == null) {
                 EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.newInstance());
                 instance = (T) EXTENSION_INSTANCES.get(clazz);
-            }
+            }// 只缓存了原始对象，每次都重新注入依赖属性，重新包装
             injectExtension(instance);
             Set<Class<?>> wrapperClasses = cachedWrapperClasses;
             if (CollectionUtils.isNotEmpty(wrapperClasses)) {
