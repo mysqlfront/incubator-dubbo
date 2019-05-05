@@ -787,7 +787,7 @@ public class ExtensionLoader<T> {
                 cacheActivateClass(clazz, names[0]);// 如果没有 activate 就不缓存
                 for (String n : names) {
                     cacheName(clazz, n);
-                    saveInExtensionClass(extensionClasses, clazz, name);// 同名不同class跑出异常
+                    saveInExtensionClass(extensionClasses, clazz, name);// 同名不同class抛出异常
                 }
             }
         }
