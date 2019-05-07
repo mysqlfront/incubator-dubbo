@@ -132,6 +132,11 @@ public abstract class AbstractConfig implements Serializable {
         return value;
     }
 
+    /**
+     * 去掉 Config Bean, 就是配置标签
+     * @param cls
+     * @return
+     */
     private static String getTagName(Class<?> cls) {
         String tag = cls.getSimpleName();
         for (String suffix : SUFFIXES) {
@@ -165,7 +170,7 @@ public abstract class AbstractConfig implements Serializable {
                     if (parameter != null && parameter.key().length() > 0) {
                         key = parameter.key();
                     } else {
-                        key = calculatePropertyFromGetter(name);
+                        key = calculatePropertyFromGetter(name);// 属性名 . 分隔
                     }
                     Object value = method.invoke(config);
                     String str = String.valueOf(value).trim();
@@ -173,7 +178,7 @@ public abstract class AbstractConfig implements Serializable {
                         if (parameter != null && parameter.escaped()) {
                             str = URL.encode(str);
                         }
-                        if (parameter != null && parameter.append()) {
+                        if (parameter != null && parameter.append()) {// 追加， Default pre, key pre
                             String pre = parameters.get(Constants.DEFAULT_KEY + "." + key);
                             if (pre != null && pre.length() > 0) {
                                 str = pre + "," + str;
@@ -471,6 +476,8 @@ public abstract class AbstractConfig implements Serializable {
     }
 
     /**
+     *
+     * 期望从getter 方法中获取本配置的map形式
      * Should be called after Config was fully initialized.
      * // FIXME: this method should be completely replaced by appendParameters
      *
@@ -541,15 +548,16 @@ public abstract class AbstractConfig implements Serializable {
      */
     public void refresh() {
         try {
+            // 所有配置
             CompositeConfiguration compositeConfiguration = Environment.getInstance().getConfiguration(getPrefix(), getId());
             InmemoryConfiguration config = new InmemoryConfiguration(getPrefix(), getId());
-            config.addProperties(getMetaData());
+            config.addProperties(getMetaData());// 本配置
             if (Environment.getInstance().isConfigCenterFirst()) {
                 // The sequence would be: SystemConfiguration -> AppExternalConfiguration -> ExternalConfiguration -> AbstractConfig -> PropertiesConfiguration
                 compositeConfiguration.addConfiguration(3, config);
             } else {
                 // The sequence would be: SystemConfiguration -> AbstractConfig -> AppExternalConfiguration -> ExternalConfiguration -> PropertiesConfiguration
-                compositeConfiguration.addConfiguration(1, config);
+                compositeConfiguration.addConfiguration(1, config); // 优先取本配置的value
             }
 
             // loop methods, get override value and set the new value back to method
@@ -574,6 +582,10 @@ public abstract class AbstractConfig implements Serializable {
         }
     }
 
+    /**
+     * 标签形式输出
+     * @return
+     */
     @Override
     public String toString() {
         try {
@@ -615,6 +627,11 @@ public abstract class AbstractConfig implements Serializable {
         return true;
     }
 
+    /**
+     * 是 get is 方法
+     * @param method
+     * @return
+     */
     private boolean isMetaMethod(Method method) {
         String name = method.getName();
         if (!(name.startsWith("get") || name.startsWith("is"))) {

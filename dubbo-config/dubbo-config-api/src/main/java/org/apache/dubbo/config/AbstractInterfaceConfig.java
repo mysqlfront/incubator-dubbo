@@ -152,6 +152,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     /**
      * Check whether the registry config is exists, and then conversion it to {@link RegistryConfig}
+     * 初始化 registry
      */
     protected void checkRegistry() {
         loadRegistriesFromBackwardConfig();
@@ -200,6 +201,9 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
+    /**
+     * 给个默认值
+     */
     private void createMonitorIfAbsent() {
         if (this.monitor != null) {
             return;
@@ -501,6 +505,9 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
+    /**
+     * ids 转为 registries
+     */
     private void convertRegistryIdsToRegistries() {
         if (StringUtils.isEmpty(registryIds) && CollectionUtils.isEmpty(registries)) {
             Set<String> configedRegistries = new HashSet<>();
@@ -511,7 +518,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
             registryIds = String.join(Constants.COMMA_SEPARATOR, configedRegistries);
         }
-
+        // 注册id
         if (StringUtils.isEmpty(registryIds)) {
             if (CollectionUtils.isEmpty(registries)) {
                 setRegistries(
@@ -528,12 +535,12 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
             String[] ids = Constants.COMMA_SPLIT_PATTERN.split(registryIds);
             List<RegistryConfig> tmpRegistries = CollectionUtils.isNotEmpty(registries) ? registries : new ArrayList<>();
             Arrays.stream(ids).forEach(id -> {
-                if (tmpRegistries.stream().noneMatch(reg -> reg.getId().equals(id))) {
+                if (tmpRegistries.stream().noneMatch(reg -> reg.getId().equals(id))) {// 如果registries 中没有 该ID的registry
                     tmpRegistries.add(ConfigManager.getInstance().getRegistry(id).orElseGet(() -> {
                         RegistryConfig registryConfig = new RegistryConfig();
                         registryConfig.setId(id);
                         registryConfig.refresh();
-                        return registryConfig;
+                        return registryConfig;// 添加进去
                     }));
                 }
             });
@@ -570,6 +577,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     /**
      * For compatibility purpose, use registry as the default config center if the registry protocol is zookeeper and
      * there's no config center specified explicitly.
+     * 出于兼容性目的，如果注册表协议是zookeeper并且没有明确指定配置中心，请使用registry作为默认配置中心
      */
     private void useRegistryForConfigIfNecessary() {
         registries.stream().filter(RegistryConfig::isZookeeperProtocol).findFirst().ifPresent(rc -> {

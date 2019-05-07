@@ -411,7 +411,7 @@ public class RegistryConfig extends AbstractConfig {
     public void refresh() {
         super.refresh();
         if (StringUtils.isNotEmpty(this.getId())) {
-            this.setPrefix(Constants.REGISTRIES_SUFFIX);
+            this.setPrefix(Constants.REGISTRIES_SUFFIX);// 加上前缀 在刷新一下
             super.refresh();
         }
     }
