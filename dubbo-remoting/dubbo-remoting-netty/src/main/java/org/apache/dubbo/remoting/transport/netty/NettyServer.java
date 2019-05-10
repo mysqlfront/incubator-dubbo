@@ -71,7 +71,7 @@ public class NettyServer extends AbstractServer implements Server {
         bootstrap = new ServerBootstrap(channelFactory);
 
         final NettyHandler nettyHandler = new NettyHandler(getUrl(), this);
-        channels = nettyHandler.getChannels();
+        channels = nettyHandler.getChannels();// 同一个引用
         // https://issues.jboss.org/browse/NETTY-365
         // https://issues.jboss.org/browse/NETTY-379
         // final Timer timer = new HashedWheelTimer(new NamedThreadFactory("NettyIdleTimer", true));

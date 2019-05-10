@@ -56,7 +56,7 @@ public class NettyClient extends AbstractClient {
     private volatile Channel channel; // volatile, please copy reference to use
 
     public NettyClient(final URL url, final ChannelHandler handler) throws RemotingException {
-        super(url, wrapChannelHandler(url, handler));
+        super(url, wrapChannelHandler(url, handler));// 会包装一下handler
     }
 
     @Override
@@ -68,7 +68,7 @@ public class NettyClient extends AbstractClient {
         bootstrap.setOption("keepAlive", true);
         bootstrap.setOption("tcpNoDelay", true);
         bootstrap.setOption("connectTimeoutMillis", getConnectTimeout());
-        final NettyHandler nettyHandler = new NettyHandler(getUrl(), this);
+        //final NettyHandler nettyHandler = new NettyHandler(getUrl(), this);
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             @Override
             public ChannelPipeline getPipeline() {
@@ -76,7 +76,7 @@ public class NettyClient extends AbstractClient {
                 ChannelPipeline pipeline = Channels.pipeline();
                 pipeline.addLast("decoder", adapter.getDecoder());
                 pipeline.addLast("encoder", adapter.getEncoder());
-                pipeline.addLast("handler", nettyHandler);
+                pipeline.addLast("handler", new NettyHandler(getUrl(), NettyClient.this));
                 return pipeline;
             }
         });

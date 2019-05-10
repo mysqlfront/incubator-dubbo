@@ -35,7 +35,7 @@ import org.apache.dubbo.rpc.RpcStatus;
  *      If there are more than configured (in this example 2) is trying to invoke remote method, then rest of invocation
  *      will wait for configured timeout(default is 0 second) before invocation gets kill by dubbo.
  * </pre>
- *
+ *  客户端并发限制
  * @see Filter
  */
 @Activate(group = Constants.CONSUMER, value = Constants.ACTIVES_KEY)
@@ -80,6 +80,7 @@ public class ActiveLimitFilter implements Filter {
             throw t;
         } finally {
             count.endCount(url, methodName, System.currentTimeMillis() - begin, isSuccess);
+            // 释放令牌，唤醒在等待的线程
             if (max > 0) {
                 synchronized (count) {
                     count.notifyAll();

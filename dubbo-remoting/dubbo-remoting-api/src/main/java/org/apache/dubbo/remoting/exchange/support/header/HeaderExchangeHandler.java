@@ -39,6 +39,7 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * ExchangeReceiver
+ * exchangeHandler代理
  */
 public class HeaderExchangeHandler implements ChannelHandlerDelegate {
 
@@ -71,6 +72,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
                         .equals(NetUtils.filterLocalHost(address.getAddress().getHostAddress()));
     }
 
+    // 只读事件处理
     void handlerEvent(Channel channel, Request req) throws RemotingException {
         if (req.getData() != null && req.getData().equals(Request.READONLY_EVENT)) {
             channel.setAttribute(Constants.CHANNEL_ATTRIBUTE_READONLY_KEY, Boolean.TRUE);
@@ -134,6 +136,8 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
     public void connected(Channel channel) throws RemotingException {
         channel.setAttribute(KEY_READ_TIMESTAMP, System.currentTimeMillis());
         channel.setAttribute(KEY_WRITE_TIMESTAMP, System.currentTimeMillis());
+
+        // 代理套路用法
         ExchangeChannel exchangeChannel = HeaderExchangeChannel.getOrAddChannel(channel);
         try {
             handler.connected(exchangeChannel);
@@ -215,6 +219,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
                     }
                 }
             } else {
+                // handler实际处理
                 handler.received(exchangeChannel, message);
             }
         } finally {

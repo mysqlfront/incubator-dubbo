@@ -28,7 +28,7 @@ class StatItem {
 
     private long lastResetTime;
 
-    private long interval;
+    private long interval;// 间隔
 
     private LongAdder token;
 
@@ -42,6 +42,7 @@ class StatItem {
         this.token = buildLongAdder(rate);
     }
 
+    /// 令牌桶算法
     public boolean isAllowable() {
         long now = System.currentTimeMillis();
         if (now > lastResetTime + interval) {

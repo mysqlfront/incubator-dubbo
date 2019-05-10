@@ -41,7 +41,7 @@ import static org.apache.dubbo.common.utils.UrlUtils.getIdleTimeout;
  */
 public class HeaderExchangeClient implements ExchangeClient {
 
-    private final Client client;
+    private final Client client;// NettyClient
     private final ExchangeChannel channel;
 
     private static final HashedWheelTimer IDLE_CHECK_TIMER = new HashedWheelTimer(
@@ -184,6 +184,7 @@ public class HeaderExchangeClient implements ExchangeClient {
 
     private void startReconnectTask(URL url) {
         if (shouldReconnect(url)) {
+            // HeaderExchangeClient 实现了 channel
             AbstractTimerTask.ChannelProvider cp = () -> Collections.singletonList(HeaderExchangeClient.this);
             int idleTimeout = getIdleTimeout(url);
             long heartbeatTimeoutTick = calculateLeastDuration(idleTimeout);

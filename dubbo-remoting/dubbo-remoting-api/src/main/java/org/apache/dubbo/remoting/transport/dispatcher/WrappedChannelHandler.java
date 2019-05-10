@@ -53,6 +53,7 @@ public class WrappedChannelHandler implements ChannelHandlerDelegate {
         if (Constants.CONSUMER_SIDE.equalsIgnoreCase(url.getParameter(Constants.SIDE_KEY))) {
             componentKey = Constants.CONSUMER_SIDE;
         }
+        // nettyserver 使用了 同一个executor
         DataStore dataStore = ExtensionLoader.getExtensionLoader(DataStore.class).getDefaultExtension();
         dataStore.put(componentKey, Integer.toString(url.getPort()), executor);
     }

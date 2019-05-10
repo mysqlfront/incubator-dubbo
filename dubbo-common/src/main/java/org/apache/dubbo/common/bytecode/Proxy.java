@@ -122,7 +122,7 @@ public abstract class Proxy {
                         cache.wait();
                     } catch (InterruptedException e) {
                     }
-                } else { // 如果 value 不等于这个占位的
+                } else { /// value is null// 如果 value 不等于这个占位的
                     cache.put(key, PendingGenerationMarker);
                     break;
                 }

@@ -112,6 +112,7 @@ public class DefaultFuture implements ResponseFuture {
         return CHANNELS.containsValue(channel);
     }
 
+    //标记开始时间
     public static void sent(Channel channel, Request request) {
         DefaultFuture future = FUTURES.get(request.getId());
         if (future != null) {
@@ -226,6 +227,9 @@ public class DefaultFuture implements ResponseFuture {
         }
     }
 
+    /**
+     * 超时检查 DefaultFuture
+     */
     private static class TimeoutCheckTask implements TimerTask {
 
         private DefaultFuture future;
@@ -249,7 +253,7 @@ public class DefaultFuture implements ResponseFuture {
 
         }
     }
-
+    // 回调操作
     private void invokeCallback(ResponseCallback c) {
         ResponseCallback callbackCopy = c;
         if (callbackCopy == null) {
@@ -282,7 +286,7 @@ public class DefaultFuture implements ResponseFuture {
             }
         }
     }
-
+    // 获取结果
     private Object returnFromResponse() throws RemotingException {
         Response res = response;
         if (res == null) {

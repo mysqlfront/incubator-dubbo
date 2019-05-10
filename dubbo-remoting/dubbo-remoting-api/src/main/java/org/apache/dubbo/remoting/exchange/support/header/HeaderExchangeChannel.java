@@ -53,6 +53,7 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         this.channel = channel;
     }
 
+    // channel 属性里添加HeaderExchangeChannel
     static HeaderExchangeChannel getOrAddChannel(Channel ch) {
         if (ch == null) {
             return null;
@@ -111,6 +112,7 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         req.setVersion(Version.getProtocolVersion());
         req.setTwoWay(true);
         req.setData(request);
+        // 包装了一个 future
         DefaultFuture future = DefaultFuture.newFuture(channel, req, timeout);
         try {
             channel.send(req);

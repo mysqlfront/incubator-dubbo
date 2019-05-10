@@ -49,7 +49,7 @@ public class HeaderExchangeServer implements ExchangeServer {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Server server;
+    private final Server server;// NettyServer
     private AtomicBoolean closed = new AtomicBoolean(false);
 
     private static final HashedWheelTimer IDLE_CHECK_TIMER = new HashedWheelTimer(new NamedThreadFactory("dubbo-server-idleCheck", true), 1,

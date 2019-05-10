@@ -38,6 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * AbstractClient
+ * 既是 channel 又是 channelHandler
  */
 public abstract class AbstractClient extends AbstractEndpoint implements Client {
 
