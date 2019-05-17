@@ -32,6 +32,7 @@ import java.util.Collections;
 
 /**
  * ListenerProtocol
+ * 监听包装
  */
 public class ProtocolListenerWrapper implements Protocol {
 

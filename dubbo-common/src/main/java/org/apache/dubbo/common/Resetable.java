@@ -23,7 +23,7 @@ public interface Resetable {
 
     /**
      * reset.
-     * 重置一些参数，如超时事件
+     * 重置一些参数，如超时时间
      * @param url
      */
     void reset(URL url);

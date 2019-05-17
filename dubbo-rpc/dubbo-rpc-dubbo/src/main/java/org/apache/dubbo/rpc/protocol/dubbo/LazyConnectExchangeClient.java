@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * dubbo protocol support class.
+ * 延迟链接客户端
  */
 @SuppressWarnings("deprecation")
 final class LazyConnectExchangeClient implements ExchangeClient {

@@ -62,6 +62,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * dubbo protocol support.
+ * 初始化 server client
  */
 public class DubboProtocol extends AbstractProtocol {
 
@@ -87,6 +88,7 @@ public class DubboProtocol extends AbstractProtocol {
      */
     private final ConcurrentMap<String, String> stubServiceMethodsMap = new ConcurrentHashMap<>();
 
+    // 传递给 exchange,transport 层
     private ExchangeHandler requestHandler = new ExchangeHandlerAdapter() {
 
         @Override
@@ -221,6 +223,7 @@ public class DubboProtocol extends AbstractProtocol {
                         .equals(NetUtils.filterLocalHost(address.getAddress().getHostAddress()));
     }
 
+    // 传给了 handler
     Invoker<?> getInvoker(Channel channel, Invocation inv) throws RemotingException {
         boolean isCallBackServiceInvoke = false;
         boolean isStubServiceInvoke = false;
