@@ -22,6 +22,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * 用来给fst，kryo序列化提供需要特殊序列化方式（Serializer）的注册器
+ * {@link org.apache.dubbo.common.serialize.kryo.utils.AbstractKryoFactory#create()}
+ * 在协议层有使用
  * Provide a unified serialization registry, this class used for {@code dubbo-serialization-fst}
  * and {@code dubbo-serialization-kryo}, it will register some classes at startup time (for example {@link AbstractKryoFactory#create})
  */
@@ -42,7 +45,7 @@ public abstract class SerializableClassRegistry {
     /**
      * only supposed to be called at startup time
      *
-     * @param clazz object type
+     * @param clazz      object type
      * @param serializer object serializer
      */
     public static void registerClass(Class clazz, Serializer serializer) {
@@ -56,7 +59,7 @@ public abstract class SerializableClassRegistry {
      * get registered classes
      *
      * @return class serializer
-     * */
+     */
     public static Map<Class, Object> getRegisteredClasses() {
         return registrations;
     }
