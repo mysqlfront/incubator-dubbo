@@ -34,7 +34,7 @@ public interface Exchanger {
 
     /**
      * bind.
-     *
+     * 调用在 org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol#createServer(org.apache.dubbo.common.URL)
      * @param url
      * @param handler
      * @return message server

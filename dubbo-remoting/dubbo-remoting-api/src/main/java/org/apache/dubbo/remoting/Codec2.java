@@ -26,6 +26,8 @@ import java.io.IOException;
 @SPI
 public interface Codec2 {
 
+
+    // 调用位置，netty-channel-> org.apache.dubbo.remoting.transport.netty.NettyCodecAdapter.InternalEncoder.encode()
     @Adaptive({Constants.CODEC_KEY})
     void encode(Channel channel, ChannelBuffer buffer, Object message) throws IOException;
 

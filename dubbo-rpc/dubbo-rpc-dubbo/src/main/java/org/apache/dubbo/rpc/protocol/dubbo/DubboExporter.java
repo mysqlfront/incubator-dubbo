@@ -29,7 +29,7 @@ public class DubboExporter<T> extends AbstractExporter<T> {
 
     private final String key;
 
-    private final Map<String, Exporter<?>> exporterMap;
+    private final Map<String, Exporter<?>> exporterMap;// 协议给的，所有exporter都一样 org.apache.dubbo.rpc.protocol.AbstractProtocol.exporterMap
 
     public DubboExporter(Invoker<T> invoker, String key, Map<String, Exporter<?>> exporterMap) {
         super(invoker);

@@ -44,6 +44,7 @@ import static java.util.Collections.unmodifiableCollection;
 
 /**
  * ExchangeServerImpl
+ * 启动一个闲置检查定时器，定时关闭闲置的channel
  */
 public class HeaderExchangeServer implements ExchangeServer {
 
@@ -164,6 +165,9 @@ public class HeaderExchangeServer implements ExchangeServer {
         return exchangeChannels;
     }
 
+    /**
+     * channel包装成ExchangeChannel
+     */
     @Override
     public ExchangeChannel getExchangeChannel(InetSocketAddress remoteAddress) {
         Channel channel = server.getChannel(remoteAddress);

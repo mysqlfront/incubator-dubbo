@@ -23,6 +23,7 @@ import org.apache.dubbo.remoting.Channel;
 
 /**
  * CloseTimerTask
+ * 关闭闲置的channel
  */
 public class CloseTimerTask extends AbstractTimerTask {
 

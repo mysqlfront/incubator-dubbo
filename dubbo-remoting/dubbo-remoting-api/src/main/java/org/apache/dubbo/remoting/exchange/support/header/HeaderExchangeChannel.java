@@ -35,6 +35,8 @@ import java.net.InetSocketAddress;
 
 /**
  * ExchangeReceiver
+ * 包装request
+ * 发送请求
  */
 final class HeaderExchangeChannel implements ExchangeChannel {
 
@@ -89,9 +91,10 @@ final class HeaderExchangeChannel implements ExchangeChannel {
                 || message instanceof String) {
             channel.send(message, sent);
         } else {
+            //如果不是 request对象，包装一下
             Request request = new Request();
             request.setVersion(Version.getProtocolVersion());
-            request.setTwoWay(false);
+            request.setTwoWay(false);// 单向发送
             request.setData(message);
             channel.send(request, sent);
         }
@@ -110,7 +113,7 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         // create request.
         Request req = new Request();
         req.setVersion(Version.getProtocolVersion());
-        req.setTwoWay(true);
+        req.setTwoWay(true);// 需要有返回值
         req.setData(request);
         // 包装了一个 future //
         DefaultFuture future = DefaultFuture.newFuture(channel, req, timeout);

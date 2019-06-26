@@ -43,15 +43,18 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * DefaultFuture.
+ * response 通过该对象传递
  */
 public class DefaultFuture implements ResponseFuture {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultFuture.class);
 
+    // request.id 为 KEY
     private static final Map<Long, Channel> CHANNELS = new ConcurrentHashMap<>();
 
     private static final Map<Long, DefaultFuture> FUTURES = new ConcurrentHashMap<>();
 
+    // 超时检查定时器
     public static final Timer TIME_OUT_TIMER = new HashedWheelTimer(
             new NamedThreadFactory("dubbo-future-timeout", true),
             30,
@@ -149,6 +152,7 @@ public class DefaultFuture implements ResponseFuture {
             if (future != null) {
                 future.doReceived(response);
             } else {
+                // remove了两次，第一次是超时检查触发，第二次是服务端返回的
                 logger.warn("The timeout response finally returned at "
                         + (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()))
                         + ", response " + response
@@ -170,7 +174,7 @@ public class DefaultFuture implements ResponseFuture {
         if (timeout <= 0) {
             timeout = Constants.DEFAULT_TIMEOUT;
         }
-        if (!isDone()) {
+        if (!isDone()) {// response 不为空
             long start = System.currentTimeMillis();
             lock.lock();
             try {
@@ -333,7 +337,7 @@ public class DefaultFuture implements ResponseFuture {
         lock.lock();
         try {
             response = res;
-            done.signalAll();
+            done.signalAll();// 唤醒 get()里的condition
         } finally {
             lock.unlock();
         }

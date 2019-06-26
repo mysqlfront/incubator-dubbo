@@ -40,6 +40,8 @@ import java.util.concurrent.CompletableFuture;
 /**
  * ExchangeReceiver
  * exchangeHandler代理
+ * 添加读写时间戳
+ * Future 处理
  */
 public class HeaderExchangeHandler implements ChannelHandlerDelegate {
 

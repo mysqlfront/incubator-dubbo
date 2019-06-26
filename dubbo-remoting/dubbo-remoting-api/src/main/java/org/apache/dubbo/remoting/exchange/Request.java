@@ -31,7 +31,7 @@ public class Request {
 
     private static final AtomicLong INVOKE_ID = new AtomicLong(0);
 
-    private final long mId;
+    private final long mId;// 全局唯一自增长
 
     private String mVersion;
 

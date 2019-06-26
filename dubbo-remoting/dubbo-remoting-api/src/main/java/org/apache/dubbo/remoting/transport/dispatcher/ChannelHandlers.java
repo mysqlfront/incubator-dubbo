@@ -44,8 +44,8 @@ public class ChannelHandlers {
     }
 
     protected ChannelHandler wrapInternal(ChannelHandler handler, URL url) {
-        return new MultiMessageHandler(
-                new HeartbeatHandler(
+        return new MultiMessageHandler(// 复合消息代理
+                new HeartbeatHandler(// 心跳事件处理
                 ExtensionLoader.getExtensionLoader(Dispatcher.class).getAdaptiveExtension().dispatch(handler, url)
         ));
     }

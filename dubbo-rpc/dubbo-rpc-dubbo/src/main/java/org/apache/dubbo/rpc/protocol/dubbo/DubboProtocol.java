@@ -319,7 +319,7 @@ public class DubboProtocol extends AbstractProtocol {
         url = URLBuilder.from(url)
                 // send readonly event when server closes, it's enabled by default
                 .addParameterIfAbsent(Constants.CHANNEL_READONLYEVENT_SENT_KEY, Boolean.TRUE.toString())
-                // enable heartbeat by default
+                // enable heartbeat by default 心跳key
                 .addParameterIfAbsent(Constants.HEARTBEAT_KEY, String.valueOf(Constants.DEFAULT_HEARTBEAT))
                 .addParameter(Constants.CODEC_KEY, DubboCodec.NAME)
                 .build();
