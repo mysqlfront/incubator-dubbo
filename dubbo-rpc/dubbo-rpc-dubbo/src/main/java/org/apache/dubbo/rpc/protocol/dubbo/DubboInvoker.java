@@ -52,7 +52,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
 
     private final ReentrantLock destroyLock = new ReentrantLock();
 
-    private final Set<Invoker<?>> invokers;
+    private final Set<Invoker<?>> invokers;// 所有的都是一个引用
 
     public DubboInvoker(Class<T> serviceType, URL url, ExchangeClient[] clients) {
         this(serviceType, url, clients, null);
@@ -68,6 +68,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
 
     @Override
     protected Result doInvoke(final Invocation invocation) throws Throwable {
+        // 实际业务处理
         RpcInvocation inv = (RpcInvocation) invocation;
         final String methodName = RpcUtils.getMethodName(invocation);
         inv.setAttachment(Constants.PATH_KEY, getUrl().getPath());
@@ -77,11 +78,11 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
         if (clients.length == 1) {
             currentClient = clients[0];
         } else {
-            currentClient = clients[index.getAndIncrement() % clients.length];
+            currentClient = clients[index.getAndIncrement() % clients.length];// 多个客户端？？
         }
         try {
-            boolean isAsync = RpcUtils.isAsync(getUrl(), invocation);
-            boolean isAsyncFuture = RpcUtils.isReturnTypeFuture(inv);
+            boolean isAsync = RpcUtils.isAsync(getUrl(), invocation);// 异步调用
+            boolean isAsyncFuture = RpcUtils.isReturnTypeFuture(inv);// Future 返回类型
             boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);// 无返回值的调用
             int timeout = getUrl().getMethodParameter(methodName, Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
             if (isOneway) {
@@ -104,6 +105,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
                 }
                 return result;
             } else {
+                // 同步
                 RpcContext.getContext().setFuture(null);
                 return (Result) currentClient.request(inv, timeout).get();
             }

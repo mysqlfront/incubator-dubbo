@@ -51,7 +51,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
 
     public static final String KEY_WRITE_TIMESTAMP = HeartbeatHandler.KEY_WRITE_TIMESTAMP;
 
-    private final ExchangeHandler handler;
+    private final ExchangeHandler handler; // org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol.requestHandler
 
     public HeaderExchangeHandler(ExchangeHandler handler) {
         if (handler == null) {
@@ -104,6 +104,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
         Object msg = req.getData();
         try {
             // handle data.
+            // 实际处理
             CompletableFuture<Object> future = handler.reply(channel, msg);
             if (future.isDone()) {
                 res.setStatus(Response.OK);
@@ -117,7 +118,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
                         res.setStatus(Response.OK);
                         res.setResult(result);
                     } else {
-                        res.setStatus(Response.SERVICE_ERROR);
+                        res.setStatus(Response.SERVICE_ERROR);// 有 异常，系统错误
                         res.setErrorMessage(StringUtils.toString(t));
                     }
                     channel.send(res);
@@ -164,6 +165,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
     @Override
     public void sent(Channel channel, Object message) throws RemotingException {
         Throwable exception = null;
+        //  handler 处理 sent
         try {
             channel.setAttribute(KEY_WRITE_TIMESTAMP, System.currentTimeMillis());
             ExchangeChannel exchangeChannel = HeaderExchangeChannel.getOrAddChannel(channel);
@@ -175,6 +177,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
         } catch (Throwable t) {
             exception = t;
         }
+        // request标记发送时间
         if (message instanceof Request) {
             Request request = (Request) message;
             DefaultFuture.sent(channel, request);
@@ -200,7 +203,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
                 // handle request.
                 Request request = (Request) message;
                 if (request.isEvent()) {
-                    handlerEvent(channel, request);
+                    handlerEvent(channel, request);// 添加只读标识
                 } else {
                     if (request.isTwoWay()) {
                         handleRequest(exchangeChannel, request);
@@ -209,7 +212,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
                     }
                 }
             } else if (message instanceof Response) {
-                handleResponse(channel, (Response) message);
+                handleResponse(channel, (Response) message);// 收到response
             } else if (message instanceof String) {
                 if (isClientSide(channel)) {
                     Exception e = new Exception("Dubbo client can not supported string message: " + message + " in channel: " + channel + ", url: " + channel.getUrl());

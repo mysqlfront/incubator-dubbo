@@ -55,6 +55,7 @@ public abstract class AbstractProtocol implements Protocol {
 
     @Override
     public void destroy() {
+        // ConcurrentModificationException ???
         for (Invoker<?> invoker : invokers) {
             if (invoker != null) {
                 invokers.remove(invoker);
