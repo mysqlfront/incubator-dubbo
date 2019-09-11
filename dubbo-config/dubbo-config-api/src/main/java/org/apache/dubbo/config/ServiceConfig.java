@@ -128,7 +128,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     /**
      * The reference of the interface implementation
      */
-    private T ref;
+    private T ref;// 实例由spring 注入
 
     /**
      * The service name
