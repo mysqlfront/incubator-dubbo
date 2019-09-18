@@ -43,7 +43,7 @@ public class ProtocolFilterWrapper implements Protocol {
         }
         this.protocol = protocol;
     }
-
+    // POINT_KEY filter 包装
     private static <T> Invoker<T> buildInvokerChain(final Invoker<T> invoker, String key, String group) {
         Invoker<T> last = invoker;// 最内层的
         List<Filter> filters = ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(invoker.getUrl(), key, group);

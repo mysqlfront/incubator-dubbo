@@ -53,13 +53,13 @@ public class InvokerInvocationHandler implements InvocationHandler {
         if ("equals".equals(methodName) && parameterTypes.length == 1) {
             return invoker.equals(args[0]);
         }
-
+        // POINT_KEY 运行时实际调用入口
         return invoker.invoke(createInvocation(method, args)).recreate();
     }
 
     private RpcInvocation createInvocation(Method method, Object[] args) {
         RpcInvocation invocation = new RpcInvocation(method, args);
-        if (RpcUtils.hasFutureReturnType(method)) {
+        if (RpcUtils.hasFutureReturnType(method)) { // 判断是不是future 接口
             invocation.setAttachment(Constants.FUTURE_RETURNTYPE_KEY, "true");
             invocation.setAttachment(Constants.ASYNC_KEY, "true");// 异步标识
         }

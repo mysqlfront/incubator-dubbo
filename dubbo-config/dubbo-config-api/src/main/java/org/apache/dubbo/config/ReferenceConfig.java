@@ -305,7 +305,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         }
         map.put(Constants.REGISTER_IP_KEY, hostToRegistry);
 
-        ref = createProxy(map);
+        ref = createProxy(map);// POINT_KEY_01 初始化 ref代理对象
 
         String serviceKey = URL.buildKey(interfaceName, group, version);
         ApplicationModel.initConsumerModel(serviceKey, buildConsumerModel(serviceKey, attributes));
@@ -334,7 +334,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                 logger.info("Using injvm service " + interfaceClass.getName());
             }
         } else {
-            //
+            // 配置了 url 点对点或者注册中心地址
             if (url != null && url.length() > 0) { // user specified URL, could be peer-to-peer address, or register center's address.
                 String[] us = Constants.SEMICOLON_SPLIT_PATTERN.split(url);
                 if (us != null && us.length > 0) {
@@ -350,7 +350,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                         }
                     }
                 }
-            } else { // assemble URL from register center's configuration
+            } else { // assemble URL from register center's configuration // 没有配置地址，去注册中心中找
                 checkRegistry();
                 List<URL> us = loadRegistries(false);
                 if (CollectionUtils.isNotEmpty(us)) {
@@ -368,7 +368,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             }
 
             if (urls.size() == 1) {
-                invoker = refprotocol.refer(interfaceClass, urls.get(0));
+                invoker = refprotocol.refer(interfaceClass, urls.get(0)); // POINT_KEY_04 Protocol 创建远程服务引用
             } else {
                 // 多个可用服务地址 // 集群处理
                 List<Invoker<?>> invokers = new ArrayList<Invoker<?>>();
@@ -412,7 +412,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             metadataReportService.publishConsumer(consumerURL);
         }
         // create service proxy
-        return (T) proxyFactory.getProxy(invoker);
+        return (T) proxyFactory.getProxy(invoker);// POINT_KEY_03 ProxyFactory 创建代理
     }
 
     /**

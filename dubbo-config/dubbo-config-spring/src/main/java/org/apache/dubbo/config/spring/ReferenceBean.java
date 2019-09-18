@@ -68,7 +68,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
 
     @Override
     public Object getObject() {
-        return get();
+        return get();// POINT_KEY_00 spring bean 初始化入口
     }
 
     @Override

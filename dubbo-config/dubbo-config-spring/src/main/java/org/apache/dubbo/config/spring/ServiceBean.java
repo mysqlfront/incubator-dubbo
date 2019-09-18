@@ -297,7 +297,7 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
             }
         }
         if (!supportedApplicationListener) {
-            export();
+            export();// POINT_KEY 服务暴露
         }
     }
 

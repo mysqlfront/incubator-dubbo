@@ -147,6 +147,7 @@ public class DefaultFuture implements ResponseFuture {
     }
 
     public static void received(Channel channel, Response response) {
+        // POINT_KEY 响应返回处理
         try {
             DefaultFuture future = FUTURES.remove(response.getId());
             if (future != null) {
@@ -179,7 +180,7 @@ public class DefaultFuture implements ResponseFuture {
             lock.lock();
             try {
                 while (!isDone()) {
-                    done.await(timeout, TimeUnit.MILLISECONDS);
+                    done.await(timeout, TimeUnit.MILLISECONDS);//POINT_KEY 异步变同步
                     if (isDone() || System.currentTimeMillis() - start > timeout) {
                         break;
                     }

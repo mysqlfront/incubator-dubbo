@@ -68,7 +68,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
 
     @Override
     protected Result doInvoke(final Invocation invocation) throws Throwable {
-        // 实际业务处理
+        // 实际业务处理 //POINT_KEY
         RpcInvocation inv = (RpcInvocation) invocation;
         final String methodName = RpcUtils.getMethodName(invocation);
         inv.setAttachment(Constants.PATH_KEY, getUrl().getPath());
@@ -91,7 +91,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
                 RpcContext.getContext().setFuture(null);
                 return new RpcResult();
             } else if (isAsync) {
-                ResponseFuture future = currentClient.request(inv, timeout);
+                ResponseFuture future = currentClient.request(inv, timeout);// 客户端发起请求，返回future
                 // For compatibility
                 FutureAdapter<Object> futureAdapter = new FutureAdapter<>(future);
                 RpcContext.getContext().setFuture(futureAdapter);
@@ -107,7 +107,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
             } else {
                 // 同步
                 RpcContext.getContext().setFuture(null);
-                return (Result) currentClient.request(inv, timeout).get();
+                return (Result) currentClient.request(inv, timeout).get();// 客户端发起请求,get方法等待实际返回
             }
         } catch (TimeoutException e) {
             throw new RpcException(RpcException.TIMEOUT_EXCEPTION, "Invoke remote method timeout. method: " + invocation.getMethodName() + ", provider: " + getUrl() + ", cause: " + e.getMessage(), e);

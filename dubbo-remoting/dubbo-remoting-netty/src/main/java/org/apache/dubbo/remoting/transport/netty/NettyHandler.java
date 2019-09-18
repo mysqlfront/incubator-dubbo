@@ -92,7 +92,7 @@ public class NettyHandler extends SimpleChannelHandler {
             NettyChannel.removeChannelIfDisconnected(ctx.getChannel());
         }
     }
-
+    // POINT_KEY send的最底层,request的入口
     @Override
     public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         super.writeRequested(ctx, e);

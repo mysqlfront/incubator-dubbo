@@ -44,7 +44,7 @@ final class HeaderExchangeChannel implements ExchangeChannel {
 
     private static final String CHANNEL_KEY = HeaderExchangeChannel.class.getName() + ".CHANNEL";
 
-    private final Channel channel; //(channel)((clict) netty)
+    private final Channel channel; //(channel)((clict) netty) nettychannel
 
     private volatile boolean closed = false;
 
@@ -114,9 +114,9 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         Request req = new Request();
         req.setVersion(Version.getProtocolVersion());
         req.setTwoWay(true);// 需要有返回值
-        req.setData(request);
+        req.setData(request);// request 是 Invocation invocation
         // 包装了一个 future //
-        DefaultFuture future = DefaultFuture.newFuture(channel, req, timeout);
+        DefaultFuture future = DefaultFuture.newFuture(channel, req, timeout);//POINT_KEY request 封装
         try {
             channel.send(req);
         } catch (RemotingException e) {

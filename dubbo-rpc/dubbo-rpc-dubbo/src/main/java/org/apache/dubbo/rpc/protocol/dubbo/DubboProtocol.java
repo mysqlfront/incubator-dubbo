@@ -89,7 +89,7 @@ public class DubboProtocol extends AbstractProtocol {
     private final ConcurrentMap<String, String> stubServiceMethodsMap = new ConcurrentHashMap<>();
 
     // 传递给 exchange,transport 层
-    private ExchangeHandler requestHandler = new ExchangeHandlerAdapter() {
+    private ExchangeHandler requestHandler = new ExchangeHandlerAdapter() {// 没有实现sent
 
         @Override
         public CompletableFuture<Object> reply(ExchangeChannel channel, Object message) throws RemotingException {
@@ -315,6 +315,7 @@ public class DubboProtocol extends AbstractProtocol {
         }
     }
 
+    // POINT_KEY 启动服务
     private ExchangeServer createServer(URL url) {
         url = URLBuilder.from(url)
                 // send readonly event when server closes, it's enabled by default
@@ -388,7 +389,7 @@ public class DubboProtocol extends AbstractProtocol {
     public <T> Invoker<T> refer(Class<T> serviceType, URL url) throws RpcException {
         optimizeSerialization(url);
 
-        // create rpc invoker.
+        // create rpc invoker. //POINT_KEY_05 dubbo invoker
         DubboInvoker<T> invoker = new DubboInvoker<T>(serviceType, url, getClients(url), invokers);
         invokers.add(invoker);
 
@@ -421,7 +422,7 @@ public class DubboProtocol extends AbstractProtocol {
                 clients[i] = shareClients.get(i);
 
             } else {
-                clients[i] = initClient(url);
+                clients[i] = initClient(url);//POINT_KEY_06 ExchangeClient 创建
             }
         }
 
