@@ -42,7 +42,7 @@ public class ChannelHandlers {
     static void setTestingChannelHandlers(ChannelHandlers instance) {
         INSTANCE = instance;
     }
-
+    // POINT_KEY 消息分发
     protected ChannelHandler wrapInternal(ChannelHandler handler, URL url) {
         return new MultiMessageHandler(// 复合消息代理
                 new HeartbeatHandler(// 心跳事件处理
