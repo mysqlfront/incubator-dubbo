@@ -16,8 +16,6 @@
  */
 package org.apache.dubbo.common.serialize.support;
 
-import com.esotericsoftware.kryo.Serializer;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,7 +29,7 @@ import java.util.Map;
 public abstract class SerializableClassRegistry {
 
 
-    private static final Map<Class, Object> registrations = new LinkedHashMap<>();
+    private static final Map<Class, Object> REGISTRATIONS = new LinkedHashMap<>();
 
     /**
      * only supposed to be called at startup time
@@ -48,11 +46,11 @@ public abstract class SerializableClassRegistry {
      * @param clazz      object type
      * @param serializer object serializer
      */
-    public static void registerClass(Class clazz, Serializer serializer) {
+    public static void registerClass(Class clazz, Object serializer) {
         if (clazz == null) {
             throw new IllegalArgumentException("Class registered to kryo cannot be null!");
         }
-        registrations.put(clazz, serializer);
+        REGISTRATIONS.put(clazz, serializer);
     }
 
     /**
@@ -61,6 +59,6 @@ public abstract class SerializableClassRegistry {
      * @return class serializer
      */
     public static Map<Class, Object> getRegisteredClasses() {
-        return registrations;
+        return REGISTRATIONS;
     }
 }

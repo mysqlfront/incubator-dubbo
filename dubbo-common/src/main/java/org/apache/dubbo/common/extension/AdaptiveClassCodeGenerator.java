@@ -16,22 +16,19 @@
  */
 package org.apache.dubbo.common.extension;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.utils.StringUtils;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 /**
  * Code generator for Adaptive class
- *
- * 自适应类源代码生成
  */
 public class AdaptiveClassCodeGenerator {
 
@@ -65,6 +62,8 @@ public class AdaptiveClassCodeGenerator {
 
 
     private static final String CODE_EXTENSION_ASSIGNMENT = "%s extension = (%<s)%s.getExtensionLoader(%s.class).getExtension(extName);\n";
+
+    private static final String CODE_EXTENSION_METHOD_INVOKE_ARGUMENT = "arg%d";
 
     private final Class<?> type;
 
@@ -195,9 +194,6 @@ public class AdaptiveClassCodeGenerator {
 
     /**
      * generate method content
-     *
-     *  Adaptive 方法里，必须能获得 url信息
-     *
      */
     private String generateMethodContent(Method method) {
         Adaptive adaptiveAnnotation = method.getAnnotation(Adaptive.class);
@@ -218,7 +214,6 @@ public class AdaptiveClassCodeGenerator {
 
             String[] value = getMethodAdaptiveValue(adaptiveAnnotation);
 
-            // org.apache.dubbo.rpc.Invocation 参数里有这个
             boolean hasInvocation = hasInvocationArgument(method);
 
             code.append(generateInvocationArgumentNullCheck(method));
@@ -230,7 +225,7 @@ public class AdaptiveClassCodeGenerator {
             code.append(generateExtensionAssignment());
 
             // return statement
-            code.append(generateReturnAndInovation(method));
+            code.append(generateReturnAndInvocation(method));
         }
 
         return code.toString();
@@ -245,8 +240,6 @@ public class AdaptiveClassCodeGenerator {
 
     /**
      * generate extName assigment code
-     *
-     * String extName = url.getProtocol();
      */
     private String generateExtNameAssignment(String[] value, boolean hasInvocation) {
         // TODO: refactor it
@@ -286,7 +279,7 @@ public class AdaptiveClassCodeGenerator {
                 }
             }
         }
-        
+
         return String.format(CODE_EXT_NAME_ASSIGNMENT, getNameCode);
     }
 
@@ -300,10 +293,12 @@ public class AdaptiveClassCodeGenerator {
     /**
      * generate method invocation statement and return it if necessary
      */
-    private String generateReturnAndInovation(Method method) {
+    private String generateReturnAndInvocation(Method method) {
         String returnStatement = method.getReturnType().equals(void.class) ? "" : "return ";
 
-        String args = Arrays.stream(method.getParameters()).map(Parameter::getName).collect(Collectors.joining(", "));
+        String args = IntStream.range(0, method.getParameters().length)
+                .mapToObj(i -> String.format(CODE_EXTENSION_METHOD_INVOKE_ARGUMENT, i))
+                .collect(Collectors.joining(", "));
 
         return returnStatement + String.format("extension.%s(%s);\n", method.getName(), args);
     }
@@ -317,7 +312,6 @@ public class AdaptiveClassCodeGenerator {
     }
 
     /**
-     * 如果参数里有 invocation
      * generate code to test argument of type <code>Invocation</code> is null
      */
     private String generateInvocationArgumentNullCheck(Method method) {
@@ -329,7 +323,6 @@ public class AdaptiveClassCodeGenerator {
 
     /**
      * get value of adaptive annotation or if empty return splitted simple name
-     * 接口名作为参数
      */
     private String[] getMethodAdaptiveValue(Adaptive adaptiveAnnotation) {
         String[] value = adaptiveAnnotation.value();
@@ -342,7 +335,6 @@ public class AdaptiveClassCodeGenerator {
     }
 
     /**
-     *  从get 方法中获取url
      * get parameter with type <code>URL</code> from method parameter:
      * <p>
      * test if parameter has method which returns type <code>URL</code>
@@ -373,8 +365,6 @@ public class AdaptiveClassCodeGenerator {
     }
 
     /**
-     * 从get 方法中获取url
-     *
      * 1, test if argi is null
      * 2, test if argi.getXX() returns null
      * 3, assign url with argi.getXX()
@@ -384,8 +374,6 @@ public class AdaptiveClassCodeGenerator {
         StringBuilder code = new StringBuilder();
         code.append(String.format("if (arg%d == null) throw new IllegalArgumentException(\"%s argument == null\");\n",
                 index, type.getName()));
-
-        // arg1.getUrl() == null
         code.append(String.format("if (arg%d.%s() == null) throw new IllegalArgumentException(\"%s argument %s() == null\");\n",
                 index, method, type.getName(), method));
 

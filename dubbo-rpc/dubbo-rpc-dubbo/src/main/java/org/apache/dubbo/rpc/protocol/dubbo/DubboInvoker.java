@@ -16,28 +16,34 @@
  */
 package org.apache.dubbo.rpc.protocol.dubbo;
 
-import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.config.ConfigurationUtils;
 import org.apache.dubbo.common.utils.AtomicPositiveInteger;
+import org.apache.dubbo.remoting.Constants;
 import org.apache.dubbo.remoting.RemotingException;
 import org.apache.dubbo.remoting.TimeoutException;
 import org.apache.dubbo.remoting.exchange.ExchangeClient;
-import org.apache.dubbo.remoting.exchange.ResponseFuture;
 import org.apache.dubbo.rpc.AsyncRpcResult;
+import org.apache.dubbo.rpc.FutureContext;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Result;
-import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.RpcInvocation;
-import org.apache.dubbo.rpc.RpcResult;
-import org.apache.dubbo.rpc.SimpleAsyncRpcResult;
 import org.apache.dubbo.rpc.protocol.AbstractInvoker;
 import org.apache.dubbo.rpc.support.RpcUtils;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_TIMEOUT;
+import static org.apache.dubbo.common.constants.CommonConstants.GROUP_KEY;
+import static org.apache.dubbo.common.constants.CommonConstants.INTERFACE_KEY;
+import static org.apache.dubbo.common.constants.CommonConstants.PATH_KEY;
+import static org.apache.dubbo.common.constants.CommonConstants.TIMEOUT_KEY;
+import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
+import static org.apache.dubbo.rpc.Constants.TOKEN_KEY;
 
 /**
  * DubboInvoker
@@ -52,62 +58,47 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
 
     private final ReentrantLock destroyLock = new ReentrantLock();
 
-    private final Set<Invoker<?>> invokers;// 所有的都是一个引用
+    private final Set<Invoker<?>> invokers;
 
     public DubboInvoker(Class<T> serviceType, URL url, ExchangeClient[] clients) {
         this(serviceType, url, clients, null);
     }
 
     public DubboInvoker(Class<T> serviceType, URL url, ExchangeClient[] clients, Set<Invoker<?>> invokers) {
-        super(serviceType, url, new String[]{Constants.INTERFACE_KEY, Constants.GROUP_KEY, Constants.TOKEN_KEY, Constants.TIMEOUT_KEY});
+        super(serviceType, url, new String[]{INTERFACE_KEY, GROUP_KEY, TOKEN_KEY, TIMEOUT_KEY});
         this.clients = clients;
         // get version.
-        this.version = url.getParameter(Constants.VERSION_KEY, "0.0.0");
+        this.version = url.getParameter(VERSION_KEY, "0.0.0");
         this.invokers = invokers;
     }
 
     @Override
     protected Result doInvoke(final Invocation invocation) throws Throwable {
-        // 实际业务处理 //POINT_KEY
         RpcInvocation inv = (RpcInvocation) invocation;
         final String methodName = RpcUtils.getMethodName(invocation);
-        inv.setAttachment(Constants.PATH_KEY, getUrl().getPath());
-        inv.setAttachment(Constants.VERSION_KEY, version);
+        inv.setAttachment(PATH_KEY, getUrl().getPath());
+        inv.setAttachment(VERSION_KEY, version);
 
         ExchangeClient currentClient;
         if (clients.length == 1) {
             currentClient = clients[0];
         } else {
-            currentClient = clients[index.getAndIncrement() % clients.length];// 多个客户端？？
+            currentClient = clients[index.getAndIncrement() % clients.length];
         }
         try {
-            boolean isAsync = RpcUtils.isAsync(getUrl(), invocation);// 异步调用
-            boolean isAsyncFuture = RpcUtils.isReturnTypeFuture(inv);// Future 返回类型
-            boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);// 无返回值的调用
-            int timeout = getUrl().getMethodParameter(methodName, Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
+            boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);
+            int timeout = getUrl().getMethodPositiveParameter(methodName, TIMEOUT_KEY, DEFAULT_TIMEOUT);
             if (isOneway) {
                 boolean isSent = getUrl().getMethodParameter(methodName, Constants.SENT_KEY, false);
                 currentClient.send(inv, isSent);
-                RpcContext.getContext().setFuture(null);
-                return new RpcResult();
-            } else if (isAsync) {
-                ResponseFuture future = currentClient.request(inv, timeout);// 客户端发起请求，返回future
-                // For compatibility
-                FutureAdapter<Object> futureAdapter = new FutureAdapter<>(future);
-                RpcContext.getContext().setFuture(futureAdapter);
-
-                Result result;
-                if (isAsyncFuture) {
-                    // register resultCallback, sometimes we need the async result being processed by the filter chain.
-                    result = new AsyncRpcResult(futureAdapter, futureAdapter.getResultFuture(), false);
-                } else {
-                    result = new SimpleAsyncRpcResult(futureAdapter, futureAdapter.getResultFuture(), false);
-                }
-                return result;
+                return AsyncRpcResult.newDefaultAsyncResult(invocation);
             } else {
-                // 同步
-                RpcContext.getContext().setFuture(null);
-                return (Result) currentClient.request(inv, timeout).get();// 客户端发起请求,get方法等待实际返回
+                AsyncRpcResult asyncRpcResult = new AsyncRpcResult(inv);
+                CompletableFuture<Object> responseFuture = currentClient.request(inv, timeout);
+                asyncRpcResult.subscribeTo(responseFuture);
+                // save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter
+                FutureContext.getContext().setCompatibleFuture(responseFuture);
+                return asyncRpcResult;
             }
         } catch (TimeoutException e) {
             throw new RpcException(RpcException.TIMEOUT_EXCEPTION, "Invoke remote method timeout. method: " + invocation.getMethodName() + ", provider: " + getUrl() + ", cause: " + e.getMessage(), e);

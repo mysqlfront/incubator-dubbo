@@ -30,6 +30,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,8 +48,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
- * 深度遍历对象，并且将复杂类型转为简单类型
- * ？？ 使用场景
  * PojoUtils. Travel object deeply, and convert complex type to simple type.
  * <p/>
  * Simple type below will be remained:
@@ -103,7 +102,7 @@ public class PojoUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static Object generalize(Object pojo, Map<Object, Object> history) {//获取某个pojo 的概况，归纳信息
+    private static Object generalize(Object pojo, Map<Object, Object> history) {
         if (pojo == null) {
             return null;
         }
@@ -367,7 +366,7 @@ public class PojoUtils {
                 history.put(pojo, dest);
                 for (Object obj : src) {
                     Type keyType = getGenericClassByIndex(genericType, 0);
-                    Class<?> keyClazz = obj.getClass();
+                    Class<?> keyClazz = obj == null ? null : obj.getClass();
                     if (keyType instanceof Class) {
                         keyClazz = (Class<?>) keyType;
                     }
@@ -382,7 +381,7 @@ public class PojoUtils {
             Object className = ((Map<Object, Object>) pojo).get("class");
             if (className instanceof String) {
                 try {
-                    type = ClassHelper.forName((String) className);
+                    type = ClassUtils.forName((String) className);
                 } catch (ClassNotFoundException e) {
                     // ignore
                 }
@@ -533,7 +532,6 @@ public class PojoUtils {
                     throw new RuntimeException("Illegal constructor: " + cls.getName());
                 }
                 Constructor<?> constructor = constructors[0];
-                // 尝试获取无参构造器
                 if (constructor.getParameterTypes().length > 0) {
                     for (Constructor<?> c : constructors) {
                         if (c.getParameterTypes().length < constructor.getParameterTypes().length) {
@@ -545,7 +543,8 @@ public class PojoUtils {
                     }
                 }
                 constructor.setAccessible(true);
-                return constructor.newInstance(new Object[constructor.getParameterTypes().length]);
+                Object[] parameters = Arrays.stream(constructor.getParameterTypes()).map(PojoUtils::getDefaultValue).toArray();
+                return constructor.newInstance(parameters);
             } catch (InstantiationException e) {
                 throw new RuntimeException(e.getMessage(), e);
             } catch (IllegalAccessException e) {
@@ -557,14 +556,20 @@ public class PojoUtils {
     }
 
     /**
-     * 获取属性的set方法 有cache,
-     * 没有获取到返回null
-     *
-     * @param cls
-     * @param property
-     * @param valueCls
+     * return init value
+     * @param parameterType
      * @return
      */
+    private static Object getDefaultValue(Class<?> parameterType) {
+        if ("char".equals(parameterType.getName())) {
+            return Character.MIN_VALUE;
+        }
+        if ("bool".equals(parameterType.getName())) {
+            return false;
+        }
+        return parameterType.isPrimitive() ? 0 : null;
+    }
+
     private static Method getSetterMethod(Class<?> cls, String property, Class<?> valueCls) {
         String name = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
         Method method = NAME_METHODS_CACHE.get(cls.getName() + "." + name + "(" + valueCls.getName() + ")");
@@ -575,6 +580,7 @@ public class PojoUtils {
                 for (Method m : cls.getMethods()) {
                     if (ReflectUtils.isBeanPropertyWriteMethod(m) && m.getName().equals(name)) {
                         method = m;
+                        break;
                     }
                 }
             }
@@ -585,12 +591,6 @@ public class PojoUtils {
         return method;
     }
 
-    /**
-     * 获取某个属性 有cache
-     * @param cls
-     * @param fieldName
-     * @return
-     */
     private static Field getField(Class<?> cls, String fieldName) {
         Field result = null;
         if (CLASS_FIELD_CACHE.containsKey(cls) && CLASS_FIELD_CACHE.get(cls).containsKey(fieldName)) {
@@ -619,12 +619,6 @@ public class PojoUtils {
         return result;
     }
 
-    /**
-     * 判断是不是pojo
-     * 排除掉基本类型（dubbo 认为的），map，collection
-     * @param cls
-     * @return
-     */
     public static boolean isPojo(Class<?> cls) {
         return !ReflectUtils.isPrimitives(cls)
                 && !Collection.class.isAssignableFrom(cls)

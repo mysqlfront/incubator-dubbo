@@ -18,7 +18,6 @@
  */
 package org.apache.dubbo.rpc.service;
 
-import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.beanutil.JavaBeanAccessor;
 import org.apache.dubbo.common.beanutil.JavaBeanDescriptor;
 import org.apache.dubbo.common.beanutil.JavaBeanSerializeUtil;
@@ -30,9 +29,7 @@ import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.ServiceConfig;
-
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -43,18 +40,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.apache.dubbo.rpc.Constants.GENERIC_SERIALIZATION_BEAN;
+import static org.apache.dubbo.rpc.Constants.GENERIC_SERIALIZATION_NATIVE_JAVA;
+
 /**
  * GenericServiceTest
  */
-@Disabled("Keeps failing on Travis, but can not be reproduced locally.")
 public class GenericServiceTest {
+
+    private ApplicationConfig application = new ApplicationConfig("genericService-test");
+    private RegistryConfig registryNA = new RegistryConfig("N/A");
+    private ProtocolConfig protocolDubbo29581 = new ProtocolConfig("dubbo", 29581);
 
     @Test
     public void testGenericServiceException() {
         ServiceConfig<GenericService> service = new ServiceConfig<GenericService>();
-        service.setApplication(new ApplicationConfig("generic-provider"));
-        service.setRegistry(new RegistryConfig("N/A"));
-        service.setProtocol(new ProtocolConfig("dubbo", 29581));
+        service.setApplication(application);
+        service.setRegistry(registryNA);
+        service.setProtocol(protocolDubbo29581);
         service.setInterface(DemoService.class.getName());
         service.setRef(new GenericService() {
 
@@ -75,7 +78,7 @@ public class GenericServiceTest {
         service.export();
         try {
             ReferenceConfig<DemoService> reference = new ReferenceConfig<DemoService>();
-            reference.setApplication(new ApplicationConfig("generic-consumer"));
+            service.setApplication(application);
             reference.setInterface(DemoService.class);
             reference.setUrl("dubbo://127.0.0.1:29581?generic=true&timeout=3000");
             DemoService demoService = reference.get();
@@ -106,15 +109,15 @@ public class GenericServiceTest {
     @Test
     public void testGenericReferenceException() {
         ServiceConfig<DemoService> service = new ServiceConfig<DemoService>();
-        service.setApplication(new ApplicationConfig("generic-provider"));
-        service.setRegistry(new RegistryConfig("N/A"));
-        service.setProtocol(new ProtocolConfig("dubbo", 29581));
+        service.setApplication(application);
+        service.setRegistry(registryNA);
+        service.setProtocol(protocolDubbo29581);
         service.setInterface(DemoService.class.getName());
         service.setRef(new DemoServiceImpl());
         service.export();
         try {
             ReferenceConfig<GenericService> reference = new ReferenceConfig<GenericService>();
-            reference.setApplication(new ApplicationConfig("generic-consumer"));
+            service.setApplication(application);
             reference.setInterface(DemoService.class);
             reference.setUrl("dubbo://127.0.0.1:29581?scope=remote&timeout=3000");
             reference.setGeneric(true);
@@ -139,19 +142,19 @@ public class GenericServiceTest {
     @Test
     public void testGenericSerializationJava() throws Exception {
         ServiceConfig<DemoService> service = new ServiceConfig<DemoService>();
-        service.setApplication(new ApplicationConfig("generic-provider"));
-        service.setRegistry(new RegistryConfig("N/A"));
-        service.setProtocol(new ProtocolConfig("dubbo", 29581));
+        service.setApplication(application);
+        service.setRegistry(registryNA);
+        service.setProtocol(protocolDubbo29581);
         service.setInterface(DemoService.class.getName());
         DemoServiceImpl ref = new DemoServiceImpl();
         service.setRef(ref);
         service.export();
         try {
             ReferenceConfig<GenericService> reference = new ReferenceConfig<GenericService>();
-            reference.setApplication(new ApplicationConfig("generic-consumer"));
+            service.setApplication(application);
             reference.setInterface(DemoService.class);
             reference.setUrl("dubbo://127.0.0.1:29581?scope=remote&timeout=3000");
-            reference.setGeneric(Constants.GENERIC_SERIALIZATION_NATIVE_JAVA);
+            reference.setGeneric(GENERIC_SERIALIZATION_NATIVE_JAVA);
             GenericService genericService = reference.get();
             try {
                 String name = "kimi";
@@ -207,20 +210,20 @@ public class GenericServiceTest {
     @Test
     public void testGenericInvokeWithBeanSerialization() throws Exception {
         ServiceConfig<DemoService> service = new ServiceConfig<DemoService>();
-        service.setApplication(new ApplicationConfig("bean-provider"));
+        service.setApplication(application);
+        service.setRegistry(registryNA);
+        service.setProtocol(protocolDubbo29581);
         service.setInterface(DemoService.class);
-        service.setRegistry(new RegistryConfig("N/A"));
         DemoServiceImpl impl = new DemoServiceImpl();
         service.setRef(impl);
-        service.setProtocol(new ProtocolConfig("dubbo", 29581));
         service.export();
         ReferenceConfig<GenericService> reference = null;
         try {
             reference = new ReferenceConfig<GenericService>();
-            reference.setApplication(new ApplicationConfig("bean-consumer"));
+            service.setApplication(application);
             reference.setInterface(DemoService.class);
             reference.setUrl("dubbo://127.0.0.1:29581?scope=remote&timeout=3000");
-            reference.setGeneric(Constants.GENERIC_SERIALIZATION_BEAN);
+            reference.setGeneric(GENERIC_SERIALIZATION_BEAN);
             GenericService genericService = reference.get();
             User user = new User();
             user.setName("zhangsan");
@@ -246,9 +249,9 @@ public class GenericServiceTest {
     public void testGenericImplementationWithBeanSerialization() throws Exception {
         final AtomicReference reference = new AtomicReference();
         ServiceConfig<GenericService> service = new ServiceConfig<GenericService>();
-        service.setApplication(new ApplicationConfig("bean-provider"));
-        service.setRegistry(new RegistryConfig("N/A"));
-        service.setProtocol(new ProtocolConfig("dubbo", 29581));
+        service.setApplication(application);
+        service.setRegistry(registryNA);
+        service.setProtocol(protocolDubbo29581);
         service.setInterface(DemoService.class.getName());
         service.setRef(new GenericService() {
 
@@ -271,7 +274,7 @@ public class GenericServiceTest {
         ReferenceConfig<DemoService> ref = null;
         try {
             ref = new ReferenceConfig<DemoService>();
-            ref.setApplication(new ApplicationConfig("bean-consumer"));
+            service.setApplication(application);
             ref.setInterface(DemoService.class);
             ref.setUrl("dubbo://127.0.0.1:29581?scope=remote&generic=bean&timeout=3000");
             DemoService demoService = ref.get();
