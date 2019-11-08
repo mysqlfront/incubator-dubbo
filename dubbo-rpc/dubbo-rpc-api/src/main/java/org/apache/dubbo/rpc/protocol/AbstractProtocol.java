@@ -89,6 +89,7 @@ public abstract class AbstractProtocol implements Protocol {
 
     @Override
     public <T> Invoker<T> refer(Class<T> type, URL url) throws RpcException {
+        //POINT_KEY 异步转同步包装
         return new AsyncToSyncInvoker<>(protocolBindingRefer(type, url));
     }
 

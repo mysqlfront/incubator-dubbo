@@ -409,7 +409,7 @@ public class DubboProtocol extends AbstractProtocol {
 
         return invoker;
     }
-
+    // POINT_KEY 创建交换层客户端
     private ExchangeClient[] getClients(URL url) {
         // whether to share connection
 
