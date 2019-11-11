@@ -79,12 +79,12 @@ final class HeaderExchangeChannel implements ExchangeChannel {
     }
 
     @Override
-    public void send(Object message) throws RemotingException {
+    public void send(Object message) throws RemotingException {// 应该没有人调用
         send(message, false);
     }
 
     @Override
-    public void send(Object message, boolean sent) throws RemotingException {
+    public void send(Object message, boolean sent) throws RemotingException {// 应该没有人调用
         if (closed) {
             throw new RemotingException(this.getLocalAddress(), null, "Failed to send message " + message + ", cause: The channel " + this + " is closed!");
         }
@@ -97,7 +97,7 @@ final class HeaderExchangeChannel implements ExchangeChannel {
             Request request = new Request();
             request.setVersion(Version.getProtocolVersion());
             request.setTwoWay(false);// 单向发送
-            request.setData(message);
+            request.setData(message);// message 是Invocation
             channel.send(request, sent);
         }
     }

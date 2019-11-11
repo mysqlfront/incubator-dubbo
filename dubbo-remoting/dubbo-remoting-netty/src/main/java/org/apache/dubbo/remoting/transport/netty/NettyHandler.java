@@ -45,7 +45,7 @@ public class NettyHandler extends SimpleChannelHandler {
     private final Map<String, Channel> channels = new ConcurrentHashMap<String, Channel>(); // <ip:port, channel>
 
     private final URL url;
-
+    // 包装结果->MultiMessageHandler(HeartbeatHandler(AllChannelHandler(DecodeHandler(HeaderExchangeHandler(ExchangeHandler())))))
     private final ChannelHandler handler;
 
     public NettyHandler(URL url, ChannelHandler handler) {
@@ -94,7 +94,7 @@ public class NettyHandler extends SimpleChannelHandler {
             logger.info("The connection between " + channel.getRemoteAddress() + " and " + channel.getLocalAddress() + " is disconnected");
         }
     }
-
+    // 响应入口, 可能是server端收到请求，也可能是client收到响应
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         NettyChannel channel = NettyChannel.getOrAddChannel(ctx.getChannel(), url, handler);
@@ -104,13 +104,13 @@ public class NettyHandler extends SimpleChannelHandler {
             NettyChannel.removeChannelIfDisconnected(ctx.getChannel());
         }
     }
-    // POINT_KEY send的最底层,request的入口
+    // POINT_KEY send的最底层
     @Override
     public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         super.writeRequested(ctx, e);
         NettyChannel channel = NettyChannel.getOrAddChannel(ctx.getChannel(), url, handler);
         try {
-            handler.sent(channel, e.getMessage());
+            handler.sent(channel, e.getMessage());//回调上层传过来的handler
         } finally {
             NettyChannel.removeChannelIfDisconnected(ctx.getChannel());
         }

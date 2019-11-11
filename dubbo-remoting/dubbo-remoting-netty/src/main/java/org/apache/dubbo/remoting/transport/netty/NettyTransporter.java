@@ -34,6 +34,7 @@ public class NettyTransporter implements Transporter {
 
     @Override
     public Client connect(URL url, ChannelHandler listener) throws RemotingException {
+        // POINT_KEY 创建netty client
         return new NettyClient(url, listener);
     }
 

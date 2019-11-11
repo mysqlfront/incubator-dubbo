@@ -22,7 +22,7 @@ import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.remoting.ChannelHandler;
 import org.apache.dubbo.remoting.Dispatcher;
 
-public class FakeChannelHandlers extends ChannelHandlers {
+public class  FakeChannelHandlers extends ChannelHandlers {
 
     public FakeChannelHandlers() {
         super();

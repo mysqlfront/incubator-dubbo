@@ -111,7 +111,7 @@ public class DubboProtocol extends AbstractProtocol {
      * servicekey-stubmethods
      */
     private final ConcurrentMap<String, String> stubServiceMethodsMap = new ConcurrentHashMap<>();
-
+    // 这个handler 会传递给最下层，封装为netty handler,由netty框架触发调用 sent方法为空实现
     private ExchangeHandler requestHandler = new ExchangeHandlerAdapter() {
 
         @Override
@@ -159,7 +159,7 @@ public class DubboProtocol extends AbstractProtocol {
                 reply((ExchangeChannel) channel, message);
 
             } else {
-                super.received(channel, message);
+                super.received(channel, message);// 什么都没做?
             }
         }
 
@@ -592,6 +592,7 @@ public class DubboProtocol extends AbstractProtocol {
                 client = new LazyConnectExchangeClient(url, requestHandler);
 
             } else {
+                // POINT_KEY 创建交换层客户端
                 client = Exchangers.connect(url, requestHandler);
             }
 

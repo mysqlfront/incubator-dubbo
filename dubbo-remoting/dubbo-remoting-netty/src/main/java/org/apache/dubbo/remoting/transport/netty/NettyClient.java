@@ -57,6 +57,7 @@ public class NettyClient extends AbstractClient {
 
     // ChannelHandler 由 exchange 层传入
     public NettyClient(final URL url, final ChannelHandler handler) throws RemotingException {
+        // POINT_KEY clent包装handler
         super(url, wrapChannelHandler(url, handler));// 会包装一下handler
     }
 

@@ -41,6 +41,8 @@ import static org.apache.dubbo.remoting.Constants.TICKS_PER_WHEEL;
 
 /**
  * DefaultMessageClient
+ * 继承Client, ExchangeChannel,大部分的方法都转给了 ExchangeChannel
+ * 这一层扩展了两个功能，心跳检测，重链接
  */
 public class HeaderExchangeClient implements ExchangeClient {
 

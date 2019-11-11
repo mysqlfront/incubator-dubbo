@@ -50,7 +50,7 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
     private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
     private final Lock connectLock = new ReentrantLock();
     private final boolean needReconnect;
-    protected volatile ExecutorService executor;
+    protected volatile ExecutorService executor;// 这个线程池什么作用？
 
     public AbstractClient(URL url, ChannelHandler handler) throws RemotingException {
         super(url, handler);
