@@ -97,7 +97,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
             return;
         }
         // find handler by message class.
-        Object msg = req.getData();
+        Object msg = req.getData();// data 是invocation
         try {
             CompletionStage<Object> future = handler.reply(channel, msg);
             future.whenComplete((appResult, t) -> {
@@ -147,7 +147,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
             HeaderExchangeChannel.removeChannelIfDisconnected(channel);
         }
     }
-
+    // POINT_KEY 发送消息包装
     @Override
     public void sent(Channel channel, Object message) throws RemotingException {
         Throwable exception = null;
@@ -164,7 +164,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
         }
         if (message instanceof Request) {
             Request request = (Request) message;
-            DefaultFuture.sent(channel, request);
+            DefaultFuture.sent(channel, request);// 打时间戳
         }
         if (exception != null) {
             if (exception instanceof RuntimeException) {
@@ -178,12 +178,13 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
         }
     }
 
+    // POINT_KEY 区分请求还是响应
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
         channel.setAttribute(KEY_READ_TIMESTAMP, System.currentTimeMillis());
         final ExchangeChannel exchangeChannel = HeaderExchangeChannel.getOrAddChannel(channel);
         try {
-            if (message instanceof Request) {
+            if (message instanceof Request) {// server端收到request
                 // handle request.
                 Request request = (Request) message;
                 if (request.isEvent()) {
@@ -195,7 +196,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
                         handler.received(exchangeChannel, request.getData());
                     }
                 }
-            } else if (message instanceof Response) {
+            } else if (message instanceof Response) { // client 端收到response
                 handleResponse(channel, (Response) message);
             } else if (message instanceof String) {
                 if (isClientSide(channel)) {

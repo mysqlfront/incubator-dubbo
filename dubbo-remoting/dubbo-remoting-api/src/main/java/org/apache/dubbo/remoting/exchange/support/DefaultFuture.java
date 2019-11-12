@@ -151,7 +151,7 @@ public class DefaultFuture extends CompletableFuture<Object> {
                     t.cancel();
                 }
                 future.doReceived(response);
-            } else {
+            } else {// 超时情况
                 logger.warn("The timeout response finally returned at "
                         + (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()))
                         + ", response " + response
