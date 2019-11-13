@@ -80,10 +80,11 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
 
     @Override
     public Result invoke(Invocation invocation) throws RpcException {
+        // POINT_KEY 服务端调用过程
         try {
             Object value = doInvoke(proxy, invocation.getMethodName(), invocation.getParameterTypes(), invocation.getArguments());
             CompletableFuture<Object> future = wrapWithFuture(value, invocation);
-            AsyncRpcResult asyncRpcResult = new AsyncRpcResult(invocation);
+            AsyncRpcResult asyncRpcResult = new AsyncRpcResult(invocation);//AsyncRpcResult<AppResponse>
             future.whenComplete((obj, t) -> {
                 AppResponse result = new AppResponse();
                 if (t != null) {

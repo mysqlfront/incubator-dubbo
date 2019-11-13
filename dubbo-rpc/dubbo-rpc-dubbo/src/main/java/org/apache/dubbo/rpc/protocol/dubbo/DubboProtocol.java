@@ -149,8 +149,8 @@ public class DubboProtocol extends AbstractProtocol {
                 }
             }
             RpcContext.getContext().setRemoteAddress(channel.getRemoteAddress());
-            Result result = invoker.invoke(inv);
-            return result.completionFuture().thenApply(Function.identity());
+            Result result = invoker.invoke(inv);// 实际invoker org.apache.dubbo.rpc.proxy.jdk.JdkProxyFactory.getInvoker()
+            return result.completionFuture().thenApply(Function.identity());//?
         }
 
         @Override
@@ -329,7 +329,7 @@ public class DubboProtocol extends AbstractProtocol {
             }
         }
     }
-
+    // POINT_KEY createServer
     private ExchangeServer createServer(URL url) {
         url = URLBuilder.from(url)
                 // send readonly event when server closes, it's enabled by default
